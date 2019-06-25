@@ -12,7 +12,7 @@
 ## Install (non-docker)
 
 ```sh
-cd ./isi-node-hw-bridge
+cd ./penumbra-node-api
 yarn
 ```
 
@@ -25,7 +25,7 @@ docker-compose build | docker-compose up
 ## Run (non-docker)
 
 ```sh
-cd ./isi-node-hw-bridge
+cd ./penumbra-node-api
 yarn start
 ```
 
@@ -34,19 +34,17 @@ Send a `GET` request to `http://localhost:8096/describe` to get a list of availa
 
 ## Developing
 
-The core of this project is built around dynamic routing. It has been built in such a way that it allows router definition files to be dropped into `./modules/hardwareRouters`. These will be automatically required by the application core when it loads, unless the router includes `.noautorequire.` somewhere in it's filename. They will then be parsed and mapped to their relevant endpoints as the application loads.
+The core of this project is built around dynamic routing. It has been built in such a way that it allows router definition files to be dropped into `./modules/routers`. These will be automatically required by the application core when it loads, unless the router includes `.noautorequire.` somewhere in it's filename. They will then be parsed and mapped to their relevant endpoints as the application loads.
 
-For an example of a query-driven router, see `BillValidator.router.js`. This will listen to requests on `/` and use URL query params to describe the functionality.
+See 'exampleRouter' for details.
 
-For an example of a endpoint-driven router, see `Gen5Printer.router.js`. This will listen to requests on `/printTest`.
+Inside each router endpoint, you should provide `method` (e.g. `get`), `endpoint` (e.g. `/`, `/example`), `purpose` (e.g. `example router`), and `returnFunction`. For example;
 
-Inside each router endpoint, you should provide `method` (e.g. `get`), `endpoint` (e.g. `/`, `/printTest`), `purpose` (e.g. `Gen5Printer`), and `returnFunction`. For example;
-
-    printTest: {
+    example: {
       method: "get",
-      endpoint: "/printTest", // This value should match the key of the parent object
-      purpose: "Gen5Printer",
-      returnFunction: (req, res, params) => printTestFn(req, res, params)
+      endpoint: "/example",
+      purpose: "example router",
+      returnFunction: (req, res, params) => exampleFn(req, res, params)
     }
 
 `method`: The REST method to use
@@ -55,7 +53,7 @@ Inside each router endpoint, you should provide `method` (e.g. `get`), `endpoint
 
 `purpose`: Used to describe the purpose to the user
 
-[Optional]`command`: The query string to look at to determine how to proceed parsing (used by the bill validator)
+[DEPRECATED] [Optional]`command`: The query string to look at to determine how to proceed parsing
 
 `returnFunction`: `{req, res, params} => ()`
   - `req`: Request object
@@ -64,9 +62,9 @@ Inside each router endpoint, you should provide `method` (e.g. `get`), `endpoint
 
 ## Author(s)
 
-👤 **[Scott Pritchard @ Korelogic](mailto:scott.pritchard@korelogic.co.uk)**
+👤 **[Scott Pritchard](mailto:scott@iocu.be)**
 
 
 ## 📝 License
 
-Copyright © 2019 [Scott Pritchard @ Korelogic](mailto:scott.pritchard@korelogic.co.uk).
+Copyright © 2019 [Scott Pritchard @ Korelogic](mailto:scott@iocu.be).
