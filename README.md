@@ -1,7 +1,7 @@
 # 🌘Penumbra - Node API🌘
 ![version](https://img.shields.io/badge/version-0.0.1-blue.svg?cacheSeconds=2592000)
 
-> Create API's with router definition files only!
+> Create API's with router definition files and/on socket handler files only!
 
 ## Docker Support
 `Dockerfile` and `docker-compose.yml` files have been added to the project. These don't have to be used, but they're here just in case. This will allow us to potentially add further services to the project at a later date.
@@ -34,6 +34,8 @@ Send a `GET` request to `http://localhost:8096/describe` to get a list of availa
 
 ## Developing
 
+#### Routers
+
 The core of this project is built around dynamic routing. It has been built in such a way that it allows router definition files to be dropped into `./modules/routers`. These will be automatically required by the application core when it loads, unless the router includes `.noautorequire.` somewhere in it's filename. They will then be parsed and mapped to their relevant endpoints as the application loads.
 
 See 'exampleRouter' for details.
@@ -59,6 +61,10 @@ Inside each router endpoint, you should provide `method` (e.g. `get`), `endpoint
   - `req`: Request object
   - `res`: Response object
   - `params`: If this route object includes a `command` field, this will be from `req.query`, else it'll be from `req.body`
+
+#### Websockets
+
+Websocket support is provided by socket.io. This is currently a WIP but will soon function very similarly to the routers development experience discussed above.
 
 ## Author(s)
 
