@@ -1,8 +1,10 @@
 const socketio = require("socket.io");
-// const autobind = require("auto-bind");
+const Utils = require("@Modules/Utils.module");
+const appConfig = require("../application.config");
+const get = require("lodash/get");
 
 const _defaultConfig = {
-  path: "/",
+  path: get(appConfig, "app.socketPath", "/socket"),
   pingInterval: 5000,
   pingTimeout: 10000,
   cookie: false,
@@ -26,6 +28,15 @@ class socketioModule {
    */
   initialize(server, handlers) {
     this.socket = new socketio(server, this.config);
+
+    Utils.formConsoleMessage(`⌛  `,`Master socketHandler has ${handlers.length} entries. The following mapping between events and functions will be available to each connection.`);
+    Object.entries(handlers).map(([event, handler]) => {
+      if (handler && handler.listenerFunction && event) {
+        Utils.formConsoleMessage(`   👉  `,`Mapping event: ${handler.event} [${handler.purpose}]`)
+      }
+    });
+    Utils.formConsoleMessage(`✅  `,"Finished mapping socket events!");
+
     // this.socket = this.socket.bind(this);
 
     // Assign our onConnection and onDisconnection functions
@@ -42,15 +53,22 @@ class socketioModule {
    * @description Runs when a client connects
    */
   onConnection(connection, handlers = {}) {
+    Utils.formConsoleMessage(`⌛  `,`Master 123 socketHandler has ${handlers.length} entries. Mapping events to functions!`);
+    Object.entries(handlers).map(([event, entry]) => {
+      if (entry && entry.listenerFunction && event) {
+        Utils.formConsoleMessage(`   👉  `,`Mapping event: ${handler.event} [${handler.purpose}]`)
+        connection.on(`${event}`, entry.listenerFunction(this.socket, connection));
+      }
+    });
+    Utils.formConsoleMessage(`✅  `,"Finished mapping socket handlers!");
+
     if (!connection) {
       return;
     }
     // Map over our event handlers so our socket knows what to do on each event
-    Object.entries(handlers).map(([event, entry]) => {
-      if (entry && entry.listenerFunction && event) {
-        connection.on(`${event}`, entry.listenerFunction);
-      }
-    });
+    // Returns this.socket and the connection into the listenerFunction
+    
+    
     // We want to perform some verification on the connection to make sure our client is legitimate
   }
 

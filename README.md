@@ -49,22 +49,36 @@ Inside each router endpoint, you should provide `method` (e.g. `get`), `endpoint
       returnFunction: (req, res, params) => exampleFn(req, res, params)
     }
 
-`method`: The REST method to use
-
-`endpoint`: The endpoint to run on
-
-`purpose`: Used to describe the purpose to the user
-
-[DEPRECATED] [Optional]`command`: The query string to look at to determine how to proceed parsing
-
-`returnFunction`: `{req, res, params} => ()`
-  - `req`: Request object
-  - `res`: Response object
-  - `params`: If this route object includes a `command` field, this will be from `req.query`, else it'll be from `req.body`
+- `method`: The REST method to use
+- `endpoint`: The endpoint to run on
+- `purpose`: Used to describe the purpose of the route to the user
+- [DEPRECATED] [Optional]`command`: The query string to look at to determine how to proceed parsing
+  -`returnFunction`: `{req, res, params} => ()`
+    - `req`: Request object
+    - `res`: Response object
+    - `params`: If this route object includes a `command` field, this will be from `req.query`, else it'll be from `req.body`
 
 #### Websockets
 
-Websocket support is provided by socket.io. This is currently a WIP but will soon function very similarly to the routers development experience discussed above.
+Websocket support is provided by socket.io. As with the routing setup, sockets can be setup by writing socket handler definition files, and dropping them into `modules/socketHandlers`. If you includes `.noautorequire.` in the filename of a handler, it won't be automatically required.
+
+See `example.socketHAndler` for details.
+
+Inside each socket handler, you should provide `event` (e.g. `example`), `listenerFunction` (e.g `(socket, connection) => console.log(connection)`) and `purpose` (e.g. `example socket handler`). For example;
+
+    {
+      event: "example",
+      purpose: "example socket handler",
+      listenerFunction: (socket, connection) => exampleFn(socket, connection)
+    }
+
+Note that unlike the router, these handlers are not keyed, but are instead just objects in an array.
+
+ - `event`: The event to listen for.
+ - `listenerFunction`: `{socket, connection} => ()`
+   - `socket`: The socket object which is listening for all connections
+   - `connection`: The object that represents the connection which triggered this function
+ - `purpose`: Used to describe the purpose of the event to the user.
 
 ## Author(s)
 
