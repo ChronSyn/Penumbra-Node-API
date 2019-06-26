@@ -58,6 +58,8 @@ Inside each router endpoint, you should provide `method` (e.g. `get`), `endpoint
     - `res`: Response object
     - `params`: If this route object includes a `command` field, this will be from `req.query`, else it'll be from `req.body`
 
+Since `returnFunction` passes `req`, you can use `req.query`, `req.body`, `req.params`, etc. if you don't wish to use the `params` passed into it.
+
 #### Websockets
 
 Websocket support is provided by socket.io. As with the routing setup, sockets can be setup by writing socket handler definition files, and dropping them into `modules/socketHandlers`. If you includes `.noautorequire.` in the filename of a handler, it won't be automatically required.
