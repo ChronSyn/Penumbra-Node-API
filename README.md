@@ -19,7 +19,9 @@ yarn
 ## Install and run (docker / docker-compose)
 
 ```sh
-docker-compose build | docker-compose up
+Powershell: docker-compose build | docker-compose up
+
+CMD/Terminal: docker-compose down && docker-compose up --detach --build --remove-orphans
 ```
 
 ## Run (non-docker)
