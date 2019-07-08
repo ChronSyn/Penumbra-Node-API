@@ -12,7 +12,7 @@
 ## Install (non-docker)
 
 ```sh
-cd ./penumbra-node-api
+cd ./penumbra
 yarn
 ```
 
@@ -25,7 +25,7 @@ docker-compose build | docker-compose up
 ## Run (non-docker)
 
 ```sh
-cd ./penumbra-node-api
+cd ./penumbra
 yarn start
 ```
 
