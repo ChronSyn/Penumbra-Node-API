@@ -1,6 +1,10 @@
-const appConfig = require("./application.config");
+require('module-alias/register')
+
+const appConfig = require("@Root/application.config");
+const findUp = require("find-up");
 // Require express and create our app
 const fs = require("fs");
+const path = require("path");
 const express = require("express");
 const http = require("http");
 const app = express();
@@ -15,28 +19,50 @@ const server = http.createServer(app);
 const _getMasterRouterDescribeRoute = get(appConfig, "app.masterRouterDescribeRoute", "/describe");
 const masterRouterDescribeRoute = _getMasterRouterDescribeRoute.split("")[0] === "/" ? _getMasterRouterDescribeRoute : `/${_getMasterRouterDescribeRoute}`;
 
+
 /*
   Require our routers
   You can simply add a new router definition file to the folder and it'll be required automatically
   If a router includes .noautorequire. in it's filename, it won't be automatically `require`d
 */
 Utils.formConsoleMessage(`🔥  `,`Penumbra is firing up!`);
+Utils.formConsoleMessage(`⌛  `,`Requiring socker handlers!`);
+
+// We read the aliases from package.json so that we can use the same path with readFileSync
+const packageJsonPath = findUp.sync("package.json");
+const packageJsonContent = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+const aliases = get(packageJsonContent, "_moduleAliases");
+
+const SocketHandlersPath = `${path.dirname(packageJsonPath)}/${get(aliases, "@Modules/socketHandlers", "./modules/socketHandlers")}`;
+const SocketHandlersDirFiles = fs.readdirSync(SocketHandlersPath);
+
+const SocketHandlers = [...SocketHandlersDirFiles.filter(socketHandlerFilename => !socketHandlerFilename.includes(".noautorequire.")).map(socketHandlerFilename => {
+  Utils.formConsoleMessage(`   👉  `,`Required: ${SocketHandlersPath}/${socketHandlerFilename}`);
+  return require(`${SocketHandlersPath}/${socketHandlerFilename}`)
+})];
+Utils.formConsoleMessage(`✅  `,"Finished requiring socket handler definition files!");
+
+const masterSocketHandlers = flattenDeep(SocketHandlers);
+const socket = new socketModule(server, masterSocketHandlers);
+
 Utils.formConsoleMessage(`⌛  `,`Requiring routers!`);
-const RoutersPath = "./modules/routers";
+
+// We require all the routers that are in our routers directory, preferring the alias folder that's in package.json but falling back to ./modules/routers
+const RoutersPath = `${path.dirname(packageJsonPath)}/${get(aliases, "@Routers", "./modules/routers")}`;
 const routerDirFiles = fs.readdirSync(RoutersPath);
-const HardwareRouters = [...routerDirFiles.filter(routerFilename => !routerFilename.includes(".noautorequire.")).map(routerFilename => {
+const Routers = [...routerDirFiles.filter(routerFilename => !routerFilename.includes(".noautorequire.")).map(routerFilename => {
   Utils.formConsoleMessage(`   👉  `,`Required: ${RoutersPath}/${routerFilename}`);
   return require(`${RoutersPath}/${routerFilename}`)
 })];
 
-if (HardwareRouters.length <= 0){
+if (Routers.length <= 0){
   console.error(`❌ You have not required any routers - the application won't be able to communicate with any other application and no endpoints are available! Check that at least 1 of them does not have ".noautorequire." in it's filename!`)
   return process.exit();
 }
 Utils.formConsoleMessage(`✅  `,"Finished requiring router definition files!");
 
-// Map over each of our hardware routers to form the master that our express app will use
-const masterRouter = flattenDeep(HardwareRouters.map(routerDef => {
+// Map over each of our routers to form the master that our express app will use
+const masterRouter = flattenDeep(Routers.map(routerDef => {
   return Object.entries(routerDef.routes).map(([key, route]) => route);
 }));
 
@@ -47,8 +73,8 @@ if (!hasBareRoute){
   masterRouter.push({
     method: "get",
     endpoint: "/",
-    purpose: "default",
-    returnFunction: ({res}) => res.send("")
+    purpose: "default route",
+    returnFunction: (req, res) => res.send("")
   });
 }
 
@@ -61,43 +87,21 @@ const router = express.Router();
 masterRouter.map(route => {
 
   // Tell our express app to form a router and the endpoint to listen on 
-  app.use(`${route.endpoint}`, router);
-  Utils.formConsoleMessage(`   👉  `,`Mapping endpoint: ${route.method.toUpperCase()} ${route.endpoint}${route.command ? `?Command=${route.command}` : ''} [${route.purpose}]`)
+  app.use(route.endpoint, router);
+  Utils.formConsoleMessage(`   👉  `,`Mapping endpoint: ${get(route, "method", "").toUpperCase()} ${get(route, "endpoint","")} [${get(route, "purpose", "")}]`)
 
   // Create paths to each endpoint
   router[route.method](route.endpoint, (req, res) => {
-    try{
-      const routeHandler = !!route.command
-        ? masterRouter.filter(masterRouterEntry => masterRouterEntry.command && masterRouterEntry.command.toUpperCase() === req.query.Command.toUpperCase())[0]
-        : masterRouter.filter(masterRouterEntry => masterRouterEntry.endpoint && masterRouterEntry.endpoint.toUpperCase() === req.path.toUpperCase())[0]
-
-      const paramsSource = !!route.command
-        ? req.query
-        : req.body
-
-      // Run our function (req, res, params)
-      routeHandler.returnFunction(req, res, paramsSource);
-    } catch (error) {
-      
+    try {
+      const routeHandler = masterRouter.filter(masterRouterEntry => masterRouterEntry.endpoint && masterRouterEntry.endpoint.toUpperCase() === req.originalUrl.toUpperCase())[0];
+      routeHandler.returnFunction(req, res, socket);
+    } catch (error) {      
       // Since this function will only run when a matched route is requested, we know that there was an error handling the request (e.g. status 500)
       // i.e. this means we can't ever get a 404 error here. This is handled below.
       return res.status(500).send({statusCode: res.statusCode, error: true, errorMessage: error.message, stack: JSON.stringify(error) })
     }
   });
 });
-
-const SocketHandlersPath = "./modules/socketHandlers";
-const SocketHandlersDirFiles = fs.readdirSync(SocketHandlersPath);
-Utils.formConsoleMessage(`⌛  `,`Requiring socker handlers!`);
-
-const SocketHandlers = [...SocketHandlersDirFiles.filter(socketHandlerFilename => !socketHandlerFilename.includes(".noautorequire.")).map(socketHandlerFilename => {
-  Utils.formConsoleMessage(`   👉  `,`Required: ${SocketHandlersPath}/${socketHandlerFilename}`);
-  return require(`${SocketHandlersPath}/${socketHandlerFilename}`)
-})];
-Utils.formConsoleMessage(`✅  `,"Finished requiring socket handler definition files!");
-
-const masterSocketHandlers = flattenDeep(SocketHandlers);
-const socket = new socketModule(server, masterSocketHandlers);
 
 const hasDescribeRoute = masterRouter.filter(masterRouterEntry => masterRouterEntry.endpoint === masterRouterDescribeRoute).length > 0;
 if (hasDescribeRoute){

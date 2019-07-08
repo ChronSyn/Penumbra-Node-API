@@ -1,4 +1,4 @@
-# 🌘Penumbra - Node API🌘
+# 🌘 Penumbra - Node API 🌘
 ![version](https://img.shields.io/badge/version-0.0.1-blue.svg?cacheSeconds=2592000)
 
 > Create API's with router definition files and/on socket handler files only!
@@ -30,7 +30,9 @@ yarn start
 ```
 
 ## Access
-Send a `GET` request to `http://localhost:8096/describe` to get a list of available endpoints.
+Send a `GET` request to `http://localhost:8096/describe` to get a list of available endpoints. You can change this path in `application.config.js` (key `masterRouterDescribeRoute`).
+
+You can also change the port the application listens on in the config file (key `app.port`);
 
 ## Developing
 
@@ -52,13 +54,12 @@ Inside each router endpoint, you should provide `method` (e.g. `get`), `endpoint
 - `method`: The REST method to use
 - `endpoint`: The endpoint to run on
 - `purpose`: Used to describe the purpose of the route to the user
-- [DEPRECATED] [Optional]`command`: The query string to look at to determine how to proceed parsing
   -`returnFunction`: `{req, res, params} => ()`
     - `req`: Request object
     - `res`: Response object
-    - `params`: If this route object includes a `command` field, this will be from `req.query`, else it'll be from `req.body`
+    - `socket`: The socket.io instance used by our application (see below)
 
-Since `returnFunction` passes `req`, you can use `req.query`, `req.body`, `req.params`, etc. if you don't wish to use the `params` passed into it.
+Since `returnFunction` passes `req`, you can use `req.query`, `req.body`, `req.params`, etc. You can also send data over websockets if you wish, allowing the application to respond to incoming REST requests and sending data on to socket clients - this is why `socket` is passed into each request function.
 
 #### Websockets
 
@@ -84,9 +85,4 @@ Note that unlike the router, these handlers are not keyed, but are instead just 
 
 ## Author(s)
 
-👤 **[Scott Pritchard](mailto:scott@iocu.be)**
-
-
-## 📝 License
-
-Copyright © 2019 [Scott Pritchard @ Korelogic](mailto:scott@iocu.be).
+👤 **[Scott Pritchard]**

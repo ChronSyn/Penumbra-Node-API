@@ -2,7 +2,7 @@ const timeout = require("connect-timeout");
 const compression = require("compression")
 const helmet = require("helmet");
 const express = require("express");
-const Utils = require("./Utils.module");
+const Utils = require("@Modules/Utils.module");
 
 module.exports = (app) => {
   app.use((req, res, next) => {
@@ -35,7 +35,6 @@ module.exports = (app) => {
       Utils.formConsoleMessage("\n\n      ⚡ ", `${req.method.toUpperCase()} to path: ${req.originalUrl}`);
       Utils.formConsoleMessage("      ↪", `Response time: ~ ${time} ms`);
       Utils.formConsoleMessage("      ↪", `Status code: ${res.statusCode}`);
-      Utils.formConsoleMessage("💬 ", `Request handler output;`);
       res.end = end;
       res.end(chunk, encoding);
     }
