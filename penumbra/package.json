@@ -27,6 +27,7 @@
     "lodash": "^4.17.11",
     "module-alias": "^2.2.0",
     "response-time": "^2.3.2",
-    "socket.io": "1.7.2"
+    "socket.io": "^2.2.0",
+    "ws": "3.3.1"
   }
 }
