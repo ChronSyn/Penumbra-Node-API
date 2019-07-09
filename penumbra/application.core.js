@@ -93,8 +93,13 @@ masterRouter.map(route => {
   // Create paths to each endpoint
   router[route.method](route.endpoint, (req, res) => {
     try {
-      const routeHandler = masterRouter.filter(masterRouterEntry => masterRouterEntry.endpoint && masterRouterEntry.endpoint.toUpperCase() === req.originalUrl.toUpperCase())[0];
-      routeHandler.returnFunction(req, res, socket);
+      const routeHandler = masterRouter.filter(masterRouterEntry => get(masterRouterEntry, "endpoint", "").toUpperCase() === get(req, "originalUrl", "req").toUpperCase() && get(masterRouterEntry, "method", "").toUpperCase() === get(req, "method", "req").toUpperCase());
+      if (routeHandler.length <= 0){
+        return res.status(404).send({statusCode: res.statusCode, error: true, errorMessage: `Route not found, please ensure the method you are requesting by (e.g. GET, POST) and endpoint (i.e. ${req.originalUrl}) are correct`})
+      }
+
+      // Run our function (req, res, socket)
+      routeHandler[0].returnFunction(req, res, socket);
     } catch (error) {      
       // Since this function will only run when a matched route is requested, we know that there was an error handling the request (e.g. status 500)
       // i.e. this means we can't ever get a 404 error here. This is handled below.
@@ -117,7 +122,7 @@ if (hasDescribeRoute){
 };
 
 app.use(({res})=>{
-  return res.status(404).send({statusCode: res.statusCode, error: true, errorMessage: "Route not found"})
+  return res.status(404).send({statusCode: res.statusCode, error: true, errorMessage: `Route not found, please ensure the method you are requesting by (e.g. GET, POST) and endpoint (i.e. ${req.originalUrl}) are correct`})
 });
 
 // Tell app to listen on port

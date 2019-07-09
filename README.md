@@ -3,6 +3,8 @@
 
 > Create API's with router definition files and/on socket handler files only!
 
+#### Please note that this project is still in early beta! There will be bugs and as such it is not recommended for production usage at this time!
+
 ## Docker Support
 `Dockerfile` and `docker-compose.yml` files have been added to the project. These don't have to be used, but they're here just in case. This will allow us to potentially add further services to the project at a later date.
 
