@@ -5,6 +5,20 @@
 
 #### Please note that this project is still in early beta! There will be bugs and as such it is not recommended for production usage at this time!
 
+## Introduction
+Penumbra is designed as a 'quick to prototype' framework for building simple API's. By writing 'router definition files' and 'socket handler definition files', you can easily build API's within hours instead of days.
+
+Penumbra only provides the scaffolding for routing and handling sockets. It doesn't care about your data structures, your database setup, your front-end or anything else. A prime use case for this is database-free applications such as bridges between front-end UI's and hardware devices, or local system interfaces (in situations where you may not necessarily want to, or can't run electron).
+
+Another use case could be as a gateway API that simply formats and forwards data from a third-party API - in these situations, you probably don't want to, or can't, store the data effectively - Penumbra provides an ideal location for formatting that data to work with your own applications before presenting it to clients through REST or websockets. One example of this is the UK rail infrastructure providers such as Network Rail and National Rail - their data can change at a moment's notice and storing it may not provide any meaningful benefit for you.
+
+## Key Limitations
+
+Penumbra currently has the following limitations;
+
+ - Not typescript (Intended to be added soon)
+ - Not an installable module - code needs to be written directly into this, similar to a boilerplate
+
 ## Docker Support
 `Dockerfile` and `docker-compose.yml` files have been added to the project. These don't have to be used, but they're here just in case. This will allow us to potentially add further services to the project at a later date.
 
@@ -87,6 +101,12 @@ Note that unlike the router, these handlers are not keyed, but are instead just 
    - `connection`: The object that represents the connection which triggered this function
  - `purpose`: Used to describe the purpose of the event to the user.
 
+## Future plans
+
+ - Typescript Support as standard
+ - Working the project into an npm-installable module
+ - Apollo server integration
+
 ## Author(s)
 
-👤 **[Scott Pritchard]**
+👤 **Scott Pritchard**
