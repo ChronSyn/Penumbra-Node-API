@@ -24,7 +24,7 @@
     "find-up": "^4.1.0",
     "flat": "^4.1.0",
     "helmet": "^3.18.0",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.13",
     "module-alias": "^2.2.0",
     "response-time": "^2.3.2",
     "socket.io": "^2.2.0",
